@@ -80,6 +80,12 @@ def fetch() -> list[FoundItem]:
 
             artist, album = _extract_artist_album(raw_title)
             full_url = urljoin("https://gimbabrecords.com", href)
+            image = product_item.select_one(".thumbnail img")
+            image_url = ""
+            if image is not None:
+                src = image.get("src") or ""
+                if isinstance(src, str) and src:
+                    image_url = urljoin("https://gimbabrecords.com", src)
             price_text = normalize_ws(product_item.select_one(".spec li").get_text(" ", strip=True)) if product_item.select_one(".spec li") else ""
             price_match = PRICE_PATTERN.search(price_text)
             price = int(price_match.group(1).replace(",", "")) if price_match else None
@@ -91,6 +97,7 @@ def fetch() -> list[FoundItem]:
                 source_product_title=raw_title,
                 url=full_url,
                 price=price,
+                cover_image_url=image_url or None,
             )
 
     return list(items_by_url.values())

@@ -11,3 +11,4 @@ class FoundItem:
     source_product_title: str
     url: str
     price: Optional[int] = None
+    cover_image_url: Optional[str] = None

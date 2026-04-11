@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -9,3 +10,4 @@ class FoundItem:
     store_name: str
     source_product_title: str
     url: str
+    price: Optional[int] = None

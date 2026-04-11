@@ -16,6 +16,7 @@ def push_to_pending(item: FoundItem) -> None:
         "storeSlug": item.store_slug,
         "sourceProductTitle": item.source_product_title,
         "url": item.url,
+        "price": item.price,
         "note": "watcher 자동 수집",
     }
 

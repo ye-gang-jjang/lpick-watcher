@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-API_BASE_URL = os.environ.get("LPICK_API_BASE_URL", "http://localhost:8000").strip()
+API_BASE_URL = os.environ.get("LPICK_API_BASE_URL", "https://vinyl-alert-api.onrender.com").strip()
 STATE_PATH = Path("seen_urls.json")
 REQUEST_DELAY_SEC = 1.0
 GIMBAB_CATEGORY_URL = os.environ.get(

@@ -9,7 +9,7 @@ GIMBAB_CATEGORY_URL = os.environ.get(
     "LPICK_GIMBAB_CATEGORY_URL",
     "https://gimbabrecords.com/product/list.html?cate_no=52",
 ).strip()
-GIMBAB_MAX_PAGES = int(os.environ.get("LPICK_GIMBAB_MAX_PAGES", "5"))
+GIMBAB_MAX_PAGES = int(os.environ.get("LPICK_GIMBAB_MAX_PAGES", "1"))
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; LPICK-WATCHER/1.0; +https://www.lpick.shop)",

@@ -2,7 +2,7 @@ from urllib.parse import quote_plus
 
 from lpick_watcher.http import get_html
 from lpick_watcher.models import FoundItem
-from lpick_watcher.parsing import build_found_items
+from lpick_watcher.parsers import build_found_items
 
 
 def fetch(artist: str) -> list[FoundItem]:

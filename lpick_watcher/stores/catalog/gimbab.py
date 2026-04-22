@@ -10,6 +10,8 @@ from lpick_watcher.http import get_html
 from lpick_watcher.models import FoundItem
 from lpick_watcher.parsers import normalize_ws, parse_price
 
+STORE_SLUG = "gimbab"
+STORE_NAME = "김밥레코즈"
 
 TRAILING_NOTE_PATTERN = re.compile(r"\s*\*.*$")
 PAREN_PATTERN = re.compile(r"\s*\([^\)]*\)")
@@ -34,7 +36,7 @@ def _extract_artist_album(raw_title: str) -> tuple[str, str]:
         artist = normalize_ws(parts[0])
         album = normalize_ws(parts[1])
     else:
-        artist = "김밥레코즈"
+        artist = STORE_NAME
         album = normalized
 
     artist = PAREN_PATTERN.sub("", artist)
@@ -100,19 +102,18 @@ def fetch() -> list[FoundItem]:
                 items_by_url[full_url] = FoundItem(
                     artist=artist,
                     album=album,
-                    store_slug="gimbab",
-                    store_name="김밥레코즈",
+                    store_slug=STORE_SLUG,
+                    store_name=STORE_NAME,
                     source_product_title=raw_title,
                     url=full_url,
                     price=price,
                     cover_image_url=image_url or None,
                 )
             except Exception as error:
-                error_href = href if isinstance(href, str) else ""
-                error_url = urljoin("https://gimbabrecords.com", error_href) if error_href else "(url 없음)"
+                error_url = urljoin("https://gimbabrecords.com", href) if href else "(url 없음)"
                 error_title = raw_title or "(title 없음)"
                 print(
-                    f"[WARN] parse failed: store='gimbab' title='{error_title}' url='{error_url}' error={error}"
+                    f"[WARN] parse failed: store='{STORE_SLUG}' title='{error_title}' url='{error_url}' error={error}"
                 )
                 continue
 

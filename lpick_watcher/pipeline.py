@@ -4,7 +4,7 @@ import time
 from lpick_watcher.config import REQUEST_DELAY_SEC
 from lpick_watcher.sinks.pending_api import push_to_pending
 from lpick_watcher.state import load_seen, save_seen
-from lpick_watcher.stores.registry import get_enabled_catalog_store_fetchers
+from lpick_watcher.stores.catalog import get_enabled_catalog_store_fetchers
 
 
 @dataclass

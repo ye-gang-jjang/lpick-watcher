@@ -10,6 +10,9 @@ from lpick_watcher.http import get_html
 from lpick_watcher.models import FoundItem
 from lpick_watcher.parsers import looks_like_lp, normalize_ws, parse_price
 
+STORE_SLUG = "aladin"
+STORE_NAME = "알라딘"
+
 ALBUM_TRAILING_NOTE_PATTERN = re.compile(r"\s+-\s+.*$")
 ALBUM_TAG_PATTERN = re.compile(r"\s*\[[^\]]*\]")
 ALBUM_PAREN_PATTERN = re.compile(r"\s*\([^\)]*\)")
@@ -30,7 +33,7 @@ def _extract_artist(raw_title: str, artist_text: str) -> str:
         return metadata_artist
 
     title_artist, _, _ = raw_title.partition(" - ")
-    return normalize_ws(title_artist) or "알라딘"
+    return normalize_ws(title_artist) or STORE_NAME
 
 
 def _extract_album(raw_title: str) -> str:
@@ -88,19 +91,18 @@ def fetch() -> list[FoundItem]:
             items_by_url[full_url] = FoundItem(
                 artist=artist,
                 album=album,
-                store_slug="aladin",
-                store_name="알라딘",
+                store_slug=STORE_SLUG,
+                store_name=STORE_NAME,
                 source_product_title=raw_title,
                 url=full_url,
                 price=price,
                 cover_image_url=image_url or None,
             )
         except Exception as error:
-            error_href = href if isinstance(href, str) else ""
-            error_url = urljoin("https://www.aladin.co.kr", error_href) if error_href else "(url 없음)"
+            error_url = urljoin("https://www.aladin.co.kr", href) if href else "(url 없음)"
             error_title = raw_title or "(title 없음)"
             print(
-                f"[WARN] parse failed: store='aladin' title='{error_title}' url='{error_url}' error={error}"
+                f"[WARN] parse failed: store='{STORE_SLUG}' title='{error_title}' url='{error_url}' error={error}"
             )
             continue
 

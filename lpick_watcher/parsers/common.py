@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 from lpick_watcher.models import FoundItem
 
-PRICE_PATTERN = re.compile(r"([0-9][0-9,]*)원")
+PRICE_PATTERN = re.compile(r"([0-9][0-9,]*)\s*원")
 
 
 def normalize_ws(value: str) -> str:

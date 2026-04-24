@@ -1,9 +1,9 @@
 from lpick_watcher.config import ENABLED_STORES
 
 from ..base import StoreFetcher
-from . import aladin, gimbab
+from . import aladin, gimbab, yes24
 
-CATALOG_STORES = [aladin, gimbab]
+CATALOG_STORES = [aladin, gimbab, yes24]
 CATALOG_STORE_FETCHERS: dict[str, StoreFetcher] = {store.STORE_SLUG: store.fetch for store in CATALOG_STORES}
 
 
@@ -20,4 +20,5 @@ __all__ = [
     "get_enabled_catalog_store_fetchers",
     "aladin",
     "gimbab",
+    "yes24",
 ]

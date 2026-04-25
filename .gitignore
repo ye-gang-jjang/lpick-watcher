@@ -14,6 +14,7 @@ venv/
 
 # State / runtime files
 seen_urls.json
+MEMORY.md
 *.log
 
 # OS

@@ -13,6 +13,10 @@ YES24_CATEGORY_URL = os.environ.get(
     "LPICK_YES24_CATEGORY_URL",
     "https://www.yes24.com/product/category/display/003001033001",
 ).strip()
+HOTTRACKS_CATEGORY_URL = os.environ.get(
+    "LPICK_HOTTRACKS_CATEGORY_URL",
+    "https://hottracks.kyobobook.co.kr/media/lp?filter=mucdo&page=1&sort=R",
+).strip()
 GIMBAB_CATEGORY_URL = os.environ.get(
     "LPICK_GIMBAB_CATEGORY_URL",
     "https://gimbabrecords.com/product/list.html?cate_no=52",

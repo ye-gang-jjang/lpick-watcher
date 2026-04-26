@@ -70,6 +70,20 @@ def _build_detail_url(sale_cmdt_id: str) -> str:
     return urljoin(DETAIL_URL_PREFIX, sale_cmdt_id)
 
 
+def _extract_price(product: dict[str, object]) -> int | None:
+    sale_price = product.get("sapr")
+    regular_price = product.get("price")
+    discount_rate = product.get("dscnRate")
+
+    if isinstance(discount_rate, int) and discount_rate > 0 and isinstance(sale_price, int):
+        return sale_price
+    if isinstance(regular_price, int):
+        return regular_price
+    if isinstance(sale_price, int):
+        return sale_price
+    return None
+
+
 def _extract_cover_image_url(detail_url: str) -> str | None:
     try:
         html = get_html(detail_url)
@@ -110,7 +124,7 @@ def fetch() -> list[FoundItem]:
             store_name=STORE_NAME,
             source_product_title=raw_title,
             url=detail_url,
-            price=product.get("price") if isinstance(product.get("price"), int) else None,
+            price=_extract_price(product),
             cover_image_url=_extract_cover_image_url(detail_url),
         )
 

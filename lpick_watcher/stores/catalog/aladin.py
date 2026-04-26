@@ -79,13 +79,6 @@ def fetch() -> list[FoundItem]:
             album = _extract_album(raw_title)
             full_url = urljoin("https://www.aladin.co.kr", href)
 
-            image = product_box.select_one("img.i_cover")
-            image_url = ""
-            if image is not None:
-                src = image.get("src") or ""
-                if isinstance(src, str) and src:
-                    image_url = urljoin("https://www.aladin.co.kr", src)
-
             price = parse_price(box_text)
 
             items_by_url[full_url] = FoundItem(
@@ -96,7 +89,7 @@ def fetch() -> list[FoundItem]:
                 source_product_title=raw_title,
                 url=full_url,
                 price=price,
-                cover_image_url=image_url or None,
+                cover_image_url=None,
             )
         except Exception as error:
             error_url = urljoin("https://www.aladin.co.kr", href) if href else "(url 없음)"

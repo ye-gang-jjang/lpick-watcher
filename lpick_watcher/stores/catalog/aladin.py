@@ -13,10 +13,14 @@ from lpick_watcher.parsers import looks_like_lp, normalize_ws, parse_price
 STORE_SLUG = "aladin"
 STORE_NAME = "알라딘"
 
+ARTIST_KO_FIRST_PAREN_PATTERN = re.compile(r"^([가-힣0-9 .&'\-/]+)\s*\([A-Za-z0-9 .&'\-/]+\)$")
+ARTIST_KO_LAST_PAREN_PATTERN = re.compile(r"^[A-Za-z0-9 .&'\-/]+\s*\(([가-힣0-9 .&'\-/]+)\)$")
 ALBUM_TRAILING_NOTE_PATTERN = re.compile(r"\s+-\s+.*$")
 ALBUM_TAG_PATTERN = re.compile(r"\s*\[[^\]]*\]")
 ALBUM_PAREN_PATTERN = re.compile(r"\s*\([^\)]*\)")
 ALBUM_PREFIX_PATTERN = re.compile(r"^(?:정규|싱글|미니|EP)\s*\d+집\s+", re.IGNORECASE)
+ALBUM_TYPE_PREFIX_PATTERN = re.compile(r"^(?:EP앨범|정규앨범|싱글앨범|미니앨범)\s+", re.IGNORECASE)
+ALBUM_EDITION_PATTERN = re.compile(r"\s+\d+(?:ST|ND|RD|TH)\s+ANNIVERSARY\s+EDITION$", re.IGNORECASE)
 UNAVAILABLE_MARKERS = (
     "예약판매가 종료되었습니다",
     "예약 판매 종료",
@@ -29,6 +33,14 @@ UNAVAILABLE_MARKERS = (
 def _extract_artist(raw_title: str, artist_text: str) -> str:
     metadata_artist = normalize_ws(artist_text)
     metadata_artist = metadata_artist.removesuffix(" 노래").strip()
+    korean_first_match = ARTIST_KO_FIRST_PAREN_PATTERN.match(metadata_artist)
+    if korean_first_match:
+        return normalize_ws(korean_first_match.group(1))
+
+    korean_last_match = ARTIST_KO_LAST_PAREN_PATTERN.match(metadata_artist)
+    if korean_last_match:
+        return normalize_ws(korean_last_match.group(1))
+
     if metadata_artist:
         return metadata_artist
 
@@ -42,7 +54,9 @@ def _extract_album(raw_title: str) -> str:
     target = ALBUM_TRAILING_NOTE_PATTERN.sub("", target)
     target = ALBUM_TAG_PATTERN.sub("", target)
     target = ALBUM_PAREN_PATTERN.sub("", target)
+    target = ALBUM_TYPE_PREFIX_PATTERN.sub("", target)
     target = ALBUM_PREFIX_PATTERN.sub("", target)
+    target = ALBUM_EDITION_PATTERN.sub("", target)
     return normalize_ws(target)
 
 

@@ -60,6 +60,17 @@ def _extract_album(raw_title: str) -> str:
     return normalize_ws(target)
 
 
+def _extract_price(product_box: BeautifulSoup, box_text: str) -> int | None:
+    discounted_price = product_box.select_one("span.ss_p2 em")
+    if discounted_price is not None:
+        discounted_text = normalize_ws(discounted_price.get_text(" ", strip=True))
+        discounted_value = parse_price(discounted_text)
+        if discounted_value is not None:
+            return discounted_value
+
+    return parse_price(box_text)
+
+
 def fetch() -> list[FoundItem]:
     html = get_html(ALADIN_CATEGORY_URL)
     soup = BeautifulSoup(html, "lxml")
@@ -93,7 +104,7 @@ def fetch() -> list[FoundItem]:
             album = _extract_album(raw_title)
             full_url = urljoin("https://www.aladin.co.kr", href)
 
-            price = parse_price(box_text)
+            price = _extract_price(product_box, box_text)
 
             items_by_url[full_url] = FoundItem(
                 artist=artist,

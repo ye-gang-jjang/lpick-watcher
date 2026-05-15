@@ -18,7 +18,6 @@ def push_to_pending(item: FoundItem) -> None:
         "url": item.url,
         "price": item.price,
         "coverImageUrl": item.cover_image_url,
-        "note": "watcher 자동 수집",
     }
 
     response = requests.post(

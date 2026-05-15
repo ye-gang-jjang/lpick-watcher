@@ -17,6 +17,10 @@ HOTTRACKS_CATEGORY_URL = os.environ.get(
     "LPICK_HOTTRACKS_CATEGORY_URL",
     "https://hottracks.kyobobook.co.kr/media/lp?filter=mucdo&page=1&sort=R",
 ).strip()
+DOPERECORD_CATEGORY_URL = os.environ.get(
+    "LPICK_DOPERECORD_CATEGORY_URL",
+    "https://doperecord.com/category/K-POP--ROCK/64/?cate_no=64&sort_method=5#Product_ListMenu",
+).strip()
 GIMBAB_CATEGORY_URL = os.environ.get(
     "LPICK_GIMBAB_CATEGORY_URL",
     "https://gimbabrecords.com/product/list.html?cate_no=52",

@@ -18,6 +18,7 @@ ARTIST_KO_PAREN_PATTERN = re.compile(r"^[A-Za-z0-9 .&'\-/]+\(([가-힣0-9 .&'\-/
 ALBUM_TAG_PATTERN = re.compile(r"\s*\[[^\]]*\]")
 ALBUM_PAREN_PATTERN = re.compile(r"\s*\([^\)]*\)")
 ALBUM_PREFIX_PATTERN = re.compile(r"^(?:정규|싱글|미니|EP|소품집)\s*\d+집\s+", re.IGNORECASE)
+DETAIL_TITLE_SUFFIX_PATTERN = re.compile(r"\s*-\s*핫트랙스\s*$")
 
 
 def _parse_query_params() -> dict[str, str]:
@@ -84,17 +85,33 @@ def _extract_price(product: dict[str, object]) -> int | None:
     return None
 
 
-def _extract_cover_image_url(detail_url: str) -> str | None:
+def _build_fallback_source_title(raw_artist: str, raw_title: str) -> str:
+    artist = normalize_ws(raw_artist).replace("O.S.T", "OST")
+    title = normalize_ws(raw_title).replace("O.S.T", "OST")
+    if artist and title:
+        return f"{artist} - {title}"
+    return title or artist
+
+
+def _extract_detail_metadata(detail_url: str, raw_artist: str, raw_title: str) -> tuple[str, str | None]:
     try:
         html = get_html(detail_url)
     except Exception:
-        return None
+        return _build_fallback_source_title(raw_artist, raw_title), None
 
-    match = re.search(r'<meta\s+property="og:image"\s+content="([^"]+)"', html, re.IGNORECASE)
-    if not match:
-        return None
-    image_url = normalize_ws(match.group(1))
-    return image_url or None
+    source_product_title = _build_fallback_source_title(raw_artist, raw_title)
+
+    title_match = re.search(r'<meta\s+property="og:title"\s+content="([^"]+)"', html, re.IGNORECASE)
+    if title_match:
+        title_text = normalize_ws(title_match.group(1))
+        title_text = DETAIL_TITLE_SUFFIX_PATTERN.sub("", title_text)
+        title_text = normalize_ws(title_text.replace(" | ", " - "))
+        if title_text:
+            source_product_title = title_text
+
+    image_match = re.search(r'<meta\s+property="og:image"\s+content="([^"]+)"', html, re.IGNORECASE)
+    image_url = normalize_ws(image_match.group(1)) if image_match else ""
+    return source_product_title, image_url or None
 
 
 def fetch() -> list[FoundItem]:
@@ -111,21 +128,23 @@ def fetch() -> list[FoundItem]:
     items_by_url: dict[str, FoundItem] = {}
     for product in tab_contents:
         raw_title = normalize_ws(str(product.get("cmdtName") or ""))
-        artist = _extract_artist(str(product.get("artistName") or "")) or STORE_NAME
+        raw_artist = normalize_ws(str(product.get("artistName") or ""))
+        artist = _extract_artist(raw_artist) or STORE_NAME
         sale_cmdt_id = normalize_ws(str(product.get("saleCmdtId") or ""))
         if not raw_title or not sale_cmdt_id:
             continue
 
         detail_url = _build_detail_url(sale_cmdt_id)
+        source_product_title, cover_image_url = _extract_detail_metadata(detail_url, raw_artist, raw_title)
         items_by_url[detail_url] = FoundItem(
             artist=artist,
             album=_extract_album(raw_title),
             store_slug=STORE_SLUG,
             store_name=STORE_NAME,
-            source_product_title=raw_title,
+            source_product_title=source_product_title,
             url=detail_url,
             price=_extract_price(product),
-            cover_image_url=_extract_cover_image_url(detail_url),
+            cover_image_url=cover_image_url,
         )
 
     return list(items_by_url.values())

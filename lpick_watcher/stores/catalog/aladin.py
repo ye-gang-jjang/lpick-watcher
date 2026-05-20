@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from urllib.parse import urljoin
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from lpick_watcher.config import ALADIN_CATEGORY_URL
 from lpick_watcher.http import get_html
@@ -60,7 +60,25 @@ def _extract_album(raw_title: str) -> str:
     return normalize_ws(target)
 
 
-def _extract_price(product_box: BeautifulSoup, box_text: str) -> int | None:
+def _build_source_product_title(raw_title: str, artist_text: str) -> str:
+    normalized_title = normalize_ws(raw_title)
+    normalized_artist = normalize_ws(artist_text)
+    if not normalized_title or not normalized_artist:
+        return normalized_title
+
+    title_artist, separator, title_album = normalized_title.partition(" - ")
+    if not separator:
+        return normalized_title
+
+    title_artist_has_korean = bool(re.search(r"[가-힣]", title_artist))
+    metadata_artist_has_korean = bool(re.search(r"[가-힣]", normalized_artist))
+    if title_artist_has_korean or not metadata_artist_has_korean:
+        return normalized_title
+
+    return f"{normalized_artist} - {normalize_ws(title_album)}"
+
+
+def _extract_price(product_box: Tag, box_text: str) -> int | None:
     discounted_price = product_box.select_one("span.ss_p2 em")
     if discounted_price is not None:
         discounted_text = normalize_ws(discounted_price.get_text(" ", strip=True))
@@ -102,6 +120,7 @@ def fetch() -> list[FoundItem]:
 
             artist = _extract_artist(raw_title, artist_text)
             album = _extract_album(raw_title)
+            source_product_title = _build_source_product_title(raw_title, artist_text)
             full_url = urljoin("https://www.aladin.co.kr", href)
 
             price = _extract_price(product_box, box_text)
@@ -111,7 +130,7 @@ def fetch() -> list[FoundItem]:
                 album=album,
                 store_slug=STORE_SLUG,
                 store_name=STORE_NAME,
-                source_product_title=raw_title,
+                source_product_title=source_product_title,
                 url=full_url,
                 price=price,
                 cover_image_url=None,
